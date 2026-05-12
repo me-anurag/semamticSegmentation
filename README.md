@@ -1,48 +1,54 @@
 # SegVision — Semantic Segmentation PWA
 
-A fully **free**, on-device semantic segmentation Progressive Web App.
-No API keys. No backend. Runs entirely in your browser.
+Free, on-device semantic segmentation. No API keys. No backend. Runs entirely in the browser.
 
-## Features
-- 🔬 **SegFormer-B2** model (ADE20K, 150 classes)
-- 🎨 Color-coded mask overlays with object name labels
-- 📊 Side-by-side original vs segmented comparison
-- 📱 Mobile-first, WhatsApp-style UI
-- 🔁 Installable as PWA (works offline after first load)
+## Stack
+- **SegFormer-B2** (ADE20K, 150 classes) via Transformers.js
+- Vanilla ES Modules — no bundler needed
+- PWA with auto-update banner on new deploys
 
-## How to Run
+## Folder structure
+```
+segpwa/
+├── index.html          ← HTML shell only
+├── manifest.json
+├── sw.js               ← Service worker (versioned cache + update prompt)
+├── icon-192.svg
+├── icon-512.svg
+│
+├── css/
+│   └── style.css       ← All styles
+│
+└── js/
+    ├── main.js         ← Entry point, event listeners
+    ├── ui.js           ← All DOM refs and UI updates
+    ├── model.js        ← Model loading, segmentation, canvas rendering
+    └── ade20k.js       ← ADE20K palette map + getLabelColor()
+```
 
-### Option 1 — Local server (recommended)
+## Run locally
 ```bash
 # Python
 python -m http.server 8080
 
-# Node.js
+# Node
 npx serve .
 ```
-Then open `http://localhost:8080` in Chrome or Safari.
+Open `http://localhost:8080` in Chrome.
 
-### Option 2 — Deploy free
-Upload all files to:
-- **Netlify** (drag & drop the folder at netlify.com)
-- **Vercel** (`npx vercel`)
-- **GitHub Pages**
+> Must use a local server — Service Workers don't work on `file://`.
 
-## First Use
-- The model (~25MB) downloads once from HuggingFace CDN
-- After that, everything runs offline
-- Segmentation takes ~2–8 seconds depending on your device
+## Deploy (Vercel + GitHub auto-updates)
+1. Push folder to GitHub
+2. Connect repo to Vercel — it auto-deploys on every push
+3. After each push, users already on the app see the **"Update Available"** banner
+4. One tap → instant update, no manual cache clearing ever needed
 
-## Supported Classes (150)
-wall, building, sky, floor, tree, ceiling, road, bed, grass, cabinet,
-sidewalk, person, door, table, mountain, plant, chair, car, water,
-painting, sofa, shelf, mirror, and 126 more...
+## On first use
+- Model (~25MB) downloads once from HuggingFace CDN and is cached
+- Segmentation: ~1–3s on desktop, ~4–8s on mobile
 
-## Files
-```
-index.html      — Main app
-manifest.json   — PWA manifest
-sw.js           — Service worker (offline support)
-icon-192.svg    — App icon
-icon-512.svg    — App icon (large)
-```
+## When you push new changes
+1. Bump `VERSION` in `sw.js` (e.g. `segvision-v3`)
+2. Push to GitHub → Vercel deploys automatically
+3. Users see the update banner within 60 seconds
